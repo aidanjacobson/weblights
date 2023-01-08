@@ -52,6 +52,7 @@ async function main() {
     }
     access_token = CryptoJS.AES.decrypt(encrypted_access_token, pin).toString(CryptoJS.enc.Utf8);
     var lightNumber = +(await numberSubmit());
+    document.querySelector("title").innerText = `Web Light ${lightNumber}`;
     while(true) {
         await syncLight(lightNumber);
     }
