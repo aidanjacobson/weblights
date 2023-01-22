@@ -32,10 +32,15 @@ function numberSubmit() {
     numberInput.removeAttribute("hidden");
     lightNumber.value = "";
     lightNumber.focus();
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve,) {
         lightNumber.onchange = function() {
             numberInput.setAttribute("hidden", true);
             resolve(lightNumber.value);
+        }
+        window.onkeypress = function(e) {
+            if (e.key == "e") {
+                resolve(0);
+            }
         }
     })
 }
@@ -53,8 +58,15 @@ async function main() {
     access_token = CryptoJS.AES.decrypt(encrypted_access_token, pin).toString(CryptoJS.enc.Utf8);
     var lightNumber = +(await numberSubmit());
     document.querySelector("title").innerText = `Web Light ${lightNumber}`;
-    while(true) {
-        await syncLight(lightNumber);
+    if (lightNumber == 0) {
+        var entityId = prompt("Enter entity id", "light.aidan_s_room_lights");
+        while(true) {
+            await syncLight(entityId);
+        }
+    } else {
+        while(true) {
+            await syncVirtual(lightNumber);
+        }
     }
 }
 main();
@@ -73,9 +85,13 @@ function retrieveLight(entity_id) {
     })
 }
 
-var color = [0, 0, 0];
-async function syncLight(light_number) {
+async function syncVirtual(light_number) {
     var entity_id = `light.virtual_light_${light_number}`;
+    await syncLight(entity_id);
+}
+
+var color = [0, 0, 0];
+async function syncLight(entity_id) {
     color = await retrieveLight(entity_id);
     if (color) {
         [r, g, b] = color;
