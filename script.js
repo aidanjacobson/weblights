@@ -39,6 +39,7 @@ function numberSubmit() {
         }
         window.onkeypress = function(e) {
             if (e.key == "e") {
+                numberInput.setAttribute("hidden", true);
                 resolve(0);
             }
         }
