@@ -1,5 +1,10 @@
 var encrypted_access_token = "U2FsdGVkX185pfeCzffzl2JzP90j2+BxIpylx76e/xzWChGAxb+PLCQC435yz6y3POyobBOSTBluy/GZMQ2I8MsLOY9zmuTELRM/2QxCrzmf2f3BHNmUM2y56/O/Zz9hVwhMI3M5pO844rAX5YkdA0XXxm/U9sykpZZiH3w4zwP0z5zwREkZeEXc2TW3uHpgiSAEiF2ZbytYGWMomuM9a67VmRAE/ifXx3zv6aS/QVHasWDE6G3iYOTGNTxgeylDIHb74sdzszhsR5o8gFy3jw==";
 
+var local = false;
+if (localStorage.getItem("local_weblight") == "true") local = true;
+
+if (local) console.log("Starting local version...");
+
 var pageLoaded = false;
 window.onload = function() {
     pageLoaded = true;
@@ -75,8 +80,12 @@ main();
 function retrieveLight(entity_id) {
     return new Promise(function(resolve) {
         var url = `https://aidanjacobson.duckdns.org:8123/api/states/${entity_id}`;
+        if (local) {
+            url = `https://homeassistant.local:8123/api/states/${entity_id}`;
+        }
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url);
+        xhr.crossOrigin = 'anonymous';
         xhr.setRequestHeader("Authorization", `Bearer ${access_token}`);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onload = function() {
@@ -101,3 +110,11 @@ async function syncLight(entity_id) {
     }
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
+
+window.addEventListener("keypress", function(e) {
+    if (e.key == "Escape") {
+        localStorage.setItem("local_weblight", "true");
+        console.log("switched to local");
+        local = true;
+    }
+})
